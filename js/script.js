@@ -1,23 +1,23 @@
-const typingText = document.querySelector(".typing-text p"),
-  inpField = document.querySelector(".wrapper .input-field");
+const typingText = document.querySelector(".typing-text p");
+const inpField = document.querySelector(".wrapper .input-field");
 
 let charIndex = 0;
 
 function randomParagraph() {
   let randIndex = Math.floor(Math.random() * paragraphs.length);
-
+  typingText.innerHTML = ""; // Clear previous content
   paragraphs[randIndex].split("").forEach((char) => {
     let spanTag = `<span>${char}</span>`;
     typingText.innerHTML += spanTag;
   });
+  charIndex = 0; // Reset charIndex for new paragraph
+  inpField.value = ""; // Clear input field
 }
 
 function initTyping() {
   const characters = typingText.querySelectorAll("span");
-
+  let typedChar = inpField.value.split("")[charIndex];
   if (charIndex < characters.length) {
-    let typedChar = inpField.value.split("")[charIndex];
-
     if (characters[charIndex].innerText === typedChar) {
       characters[charIndex].classList.add("correct");
     } else {
