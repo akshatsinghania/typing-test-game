@@ -2,6 +2,8 @@ const typingText = document.querySelector(".typing-text p");
 const inpField = document.querySelector(".wrapper .input-field");
 const timeTag = document.querySelector(".time span b");
 const mistakeTag = document.querySelector(".mistake span");
+const wpmTag = document.querySelector(".wpm span");
+const cpmTag = document.querySelector(".cpm span");
 
 let timer,
   maxTime = 60,
@@ -24,8 +26,10 @@ function randomParagraph() {
   timeLeft = maxTime;
   mistakeTag.innerText = mistakes;
   timeTag.innerText = timeLeft;
-  clearInterval(timer); 
-  isTyping = false; 
+  cpmTag.innerText = 0;
+  wpmTag.innerText = 0;
+  clearInterval(timer);
+  isTyping = false;
 }
 
 function initTyping() {
@@ -34,7 +38,7 @@ function initTyping() {
 
   if (!isTyping) {
     timer = setInterval(initTimer, 1000);
-    isTyping = true; 
+    isTyping = true;
   }
 
   if (typedChar == null) {
@@ -63,6 +67,14 @@ function initTyping() {
     }
 
     mistakeTag.innerText = mistakes;
+
+    
+    const cpm = charIndex - mistakes;
+    cpmTag.innerText = cpm;
+
+    const elapsedTime = maxTime - timeLeft;
+    const wpm = Math.round((charIndex - mistakes) / 5 / (elapsedTime / 60));
+    wpmTag.innerText = elapsedTime > 0 ? wpm : 0;
   }
 }
 
