@@ -4,6 +4,7 @@ const timeTag = document.querySelector(".time span b");
 const mistakeTag = document.querySelector(".mistake span");
 const wpmTag = document.querySelector(".wpm span");
 const cpmTag = document.querySelector(".cpm span");
+const tryAgainBtn = document.querySelector("button");
 
 let timer,
   maxTime = 60,
@@ -20,6 +21,7 @@ function randomParagraph() {
     let spanTag = `<span>${char}</span>`;
     typingText.innerHTML += spanTag;
   });
+  typingText.querySelectorAll("span")[0].classList.add("active");
   charIndex = 0;
   inpField.value = "";
   mistakes = 0;
@@ -30,51 +32,53 @@ function randomParagraph() {
   wpmTag.innerText = 0;
   clearInterval(timer);
   isTyping = false;
+  inpField.disabled = false; 
 }
 
 function initTyping() {
-  const characters = typingText.querySelectorAll("span");
-  let typedChar = inpField.value.split("")[charIndex];
+  if (timeLeft > 0) {
+    const characters = typingText.querySelectorAll("span");
+    let typedChar = inpField.value.split("")[charIndex];
 
-  if (!isTyping) {
-    timer = setInterval(initTimer, 1000);
-    isTyping = true;
-  }
+    if (!isTyping) {
+      timer = setInterval(initTimer, 1000);
+      isTyping = true;
+    }
 
-  if (typedChar == null) {
-    if (charIndex > 0) {
-      charIndex--;
-      if (characters[charIndex].classList.contains("incorrect")) {
-        mistakes--;
-        mistakeTag.innerText = mistakes;
+    if (typedChar == null) {
+      if (charIndex > 0) {
+        charIndex--;
+        if (characters[charIndex].classList.contains("incorrect")) {
+          mistakes--;
+          mistakeTag.innerText = mistakes;
+        }
+        characters[charIndex].classList.remove("correct", "incorrect");
       }
-      characters[charIndex].classList.remove("correct", "incorrect");
-    }
-  } else {
-    if (charIndex < characters.length) {
-      if (characters[charIndex].innerText === typedChar) {
-        characters[charIndex].classList.add("correct");
-      } else {
-        mistakes++;
-        characters[charIndex].classList.add("incorrect");
+    } else {
+      if (charIndex < characters.length) {
+        if (characters[charIndex].innerText === typedChar) {
+          characters[charIndex].classList.add("correct");
+        } else {
+          mistakes++;
+          characters[charIndex].classList.add("incorrect");
+        }
+        charIndex++;
       }
-      charIndex++;
+
+      characters.forEach((span) => span.classList.remove("active"));
+      if (charIndex < characters.length) {
+        characters[charIndex].classList.add("active");
+      }
+
+      mistakeTag.innerText = mistakes;
+
+      const cpm = charIndex - mistakes;
+      cpmTag.innerText = cpm;
+
+      const elapsedTime = maxTime - timeLeft;
+      const wpm = Math.round((charIndex - mistakes) / 5 / (elapsedTime / 60));
+      wpmTag.innerText = elapsedTime > 0 ? wpm : 0;
     }
-
-    characters.forEach((span) => span.classList.remove("active"));
-    if (charIndex < characters.length) {
-      characters[charIndex].classList.add("active");
-    }
-
-    mistakeTag.innerText = mistakes;
-
-    
-    const cpm = charIndex - mistakes;
-    cpmTag.innerText = cpm;
-
-    const elapsedTime = maxTime - timeLeft;
-    const wpm = Math.round((charIndex - mistakes) / 5 / (elapsedTime / 60));
-    wpmTag.innerText = elapsedTime > 0 ? wpm : 0;
   }
 }
 
@@ -87,8 +91,24 @@ function initTimer() {
     timeTag.innerText = timeLeft;
   } else {
     clearInterval(timer);
+    inpField.disabled = true; 
   }
+}
+
+function resetGame() {
+  randomParagraph();
+  timeLeft = maxTime;
+
+  charIndex = 0;
+  mistakes = 0;
+  timeTag.innerText = timeLeft;
+  mistakeTag.innerText = mistakes;
+  wpmTag.innerText = 0;
+  cpmTag.innerText = 0;
+  inpField.disabled = false; 
+  inpField.focus(); 
 }
 
 randomParagraph();
 inpField.addEventListener("input", initTyping);
+tryAgainBtn.addEventListener("click", resetGame);
